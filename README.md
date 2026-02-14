@@ -1,4 +1,5 @@
-# AWS AI Builder Hackathon Lab: Craft with AI and Build with AI
+# AWS AI BUILDER HACKATHON LAB: CRAFT WITH AI AND BUILD WITH AI
+## (AWS Pet Store Customer Support)
 
 > Multi-Agent Customer Support System for AWS Pet Store using Lyzr, AWS Bedrock, and Modern AI Infrastructure
 
@@ -20,6 +21,16 @@ This project implements an **enterprise-grade AI customer support system** for A
 - **Smart Product Recommendations**: Vector-based search for personalized suggestions
 - **Enterprise Security**: AWS Bedrock Guardrails for content safety
 - **Modern Infrastructure**: Coder workspaces with MCP server integration
+
+---
+
+## Screenshots
+
+### Homepage
+![Homepage](screenshots/01-homepage.svg)
+
+### Chat Demo - Order Tracking
+![Chat Demo](screenshots/02-chat-demo.svg)
 
 ---
 
