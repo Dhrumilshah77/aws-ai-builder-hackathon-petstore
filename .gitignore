@@ -1,0 +1,43 @@
+# Credentials and secrets
+*.env
+.env*
+*.key
+*.pem
+*.crt
+credentials*
+secrets*
+*_credentials*
+*_secret*
+api_key*
+token*
+
+# AWS
+.aws/
+aws-credentials*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build
+dist/
+build/
+*.egg-info/

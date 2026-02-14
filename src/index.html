@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Pet Store Customer Support - Multi-Agent AI</title>
+    <style>
+        :root { --primary: #ff9900; --secondary: #232f3e; --success: #4caf50; --danger: #f44336; --info: #2196f3; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { background: var(--secondary); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo { font-size: 32px; }
+        .header h1 { font-size: 18px; font-weight: 500; }
+        .header-badges { margin-left: auto; display: flex; gap: 8px; }
+        .header-badge { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; }
+        .badge-secure { background: var(--success); color: white; }
+        .badge-ai { background: var(--primary); color: white; }
+
+        .container { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+
+        .stats-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stat-card { background: white; border-radius: 10px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+        .agent-panel { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .agent-panel h3 { font-size: 12px; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .agent-panel h3::before { content: ''; width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .agents { display: flex; flex-wrap: wrap; gap: 8px; }
+        .agent-badge { padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #f0f0f0; color: #666; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border: none; }
+        .agent-badge:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: #e0e0e0; }
+        .agent-badge.active { background: var(--primary); color: white; }
+        .agent-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .agent-badge.manager .dot { background: #9c27b0; }
+        .agent-badge.orders .dot { background: #2196f3; }
+        .agent-badge.returns .dot { background: #f44336; }
+        .agent-badge.products .dot { background: #4caf50; }
+        .agent-badge.active .dot { background: white; }
+
+        .chat-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; min-height: 450px; overflow: hidden; }
+
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 75%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; animation: slideIn 0.3s ease; position: relative; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message.bot { background: #f8f9fa; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e9ecef; }
+        .message .agent-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--primary); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .message .agent-tag::before { content: ''; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+        .message.system { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); align-self: center; font-size: 13px; color: #2e7d32; border-radius: 20px; }
+        .message-time { font-size: 9px; color: #999; margin-top: 4px; text-align: right; }
+        .message.user .message-time { color: rgba(255,255,255,0.7); }
+
+        .typing { display: none; padding: 12px 16px; background: #f0f0f0; border-radius: 18px; align-self: flex-start; gap: 5px; margin-left: 20px; }
+        .typing.show { display: flex; }
+        .typing span { width: 8px; height: 8px; background: #888; border-radius: 50%; animation: bounce 1.4s infinite; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        .suggestions { padding: 12px 20px; background: #fafbfc; border-top: 1px solid #e9ecef; }
+        .suggestions p { font-size: 11px; color: #666; margin-bottom: 8px; font-weight: 500; }
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip { padding: 6px 12px; background: white; border: 1px solid #ddd; border-radius: 16px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+        .chip:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.02); }
+        .chip.highlight { border-color: var(--primary); color: var(--primary); }
+
+        .input-area { padding: 15px 20px; background: white; border-top: 1px solid #e9ecef; display: flex; gap: 10px; align-items: center; }
+        .input-wrapper { flex: 1; position: relative; }
+        .input-wrapper input { width: 100%; padding: 12px 45px 12px 16px; border: 2px solid #e9ecef; border-radius: 25px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .input-wrapper input:focus { border-color: var(--primary); }
+        .input-wrapper .emoji-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.6; }
+        .input-wrapper .emoji-btn:hover { opacity: 1; }
+        .send-btn { padding: 12px 24px; background: linear-gradient(135deg, var(--primary) 0%, #e88b00 100%); color: white; border: none; border-radius: 25px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .send-btn:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(255,153,0,0.4); }
+        .send-btn:disabled { background: #ccc; transform: none; box-shadow: none; cursor: not-allowed; }
+
+        .footer { text-align: center; padding: 12px; font-size: 11px; color: #999; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .footer span { display: flex; align-items: center; gap: 4px; }
+
+        .rating-prompt { display: none; padding: 15px; background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%); border-radius: 12px; margin: 10px 20px; text-align: center; animation: slideIn 0.3s; }
+        .rating-prompt.show { display: block; }
+        .rating-prompt p { font-size: 13px; color: #666; margin-bottom: 10px; }
+        .rating-stars { display: flex; justify-content: center; gap: 8px; }
+        .rating-stars span { font-size: 28px; cursor: pointer; transition: transform 0.2s; }
+        .rating-stars span:hover { transform: scale(1.3); }
+
+        @media (max-width: 768px) {
+            .stats-panel { grid-template-columns: repeat(2, 1fr); }
+            .message { max-width: 85%; }
+            .header h1 { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo">&#128054;</span>
+        <h1>AWS Pet Store Customer Support</h1>
+        <div class="header-badges">
+            <span class="header-badge badge-secure">&#128274; Secured</span>
+            <span class="header-badge badge-ai">&#129302; AI Powered</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-panel">
+            <div class="stat-card" onclick="showStats('queries')">
+                <div class="stat-value" id="stat-queries">0</div>
+                <div class="stat-label">Queries Handled</div>
+            </div>
+            <div class="stat-card" onclick="showStats('response')">
+                <div class="stat-value" id="stat-response">1.2s</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+            <div class="stat-card" onclick="showStats('uptime')">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card" onclick="showStats('agents')">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Active Agents</div>
+            </div>
+        </div>
+
+        <div class="agent-panel">
+            <h3>Live Agent Status - Click to interact</h3>
+            <div class="agents">
+                <button class="agent-badge manager active" id="badge-manager" onclick="activateAgent('manager')"><span class="dot"></span>Manager Agent</button>
+                <button class="agent-badge orders" id="badge-orders" onclick="activateAgent('orders')"><span class="dot"></span>Order Tracking</button>
+                <button class="agent-badge returns" id="badge-returns" onclick="activateAgent('returns')"><span class="dot"></span>Returns & Refunds</button>
+                <button class="agent-badge products" id="badge-products" onclick="activateAgent('products')"><span class="dot"></span>Product Expert</button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message system">Welcome to AWS Pet Store Support! I'm your AI assistant backed by a team of specialized agents. How can I help you today?</div>
+            </div>
+            <div class="typing" id="typing"><span></span><span></span><span></span></div>
+
+            <div class="rating-prompt" id="rating">
+                <p>How was your experience? Rate us!</p>
+                <div class="rating-stars">
+                    <span onclick="submitRating(1)">&#9733;</span>
+                    <span onclick="submitRating(2)">&#9733;</span>
+                    <span onclick="submitRating(3)">&#9733;</span>
+                    <span onclick="submitRating(4)">&#9733;</span>
+                    <span onclick="submitRating(5)">&#9733;</span>
+                </div>
+            </div>
+
+            <div class="suggestions">
+                <p>&#128161; Suggested Questions:</p>
+                <div class="suggestion-chips">
+                    <button class="chip highlight" onclick="sendQuick('Where is my order AWSPET-20018?')">&#128666; Track Order</button>
+                    <button class="chip" onclick="sendQuick('Can I return my leash? I bought it 3 days ago.')">&#128259; Return Policy</button>
+                    <button class="chip" onclick="sendQuick('My dog destroys every toy. What do you recommend?')">&#128054; Product Info</button>
+                    <button class="chip" onclick="sendQuick('How long does shipping take to New York?')">&#128230; Shipping Info</button>
+                    <button class="chip" onclick="sendQuick('I need something for my aggressive chewer puppy')">&#127918; Toy Recommendations</button>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="Type your message here..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button class="emoji-btn" onclick="addEmoji()">&#128522;</button>
+                </div>
+                <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                    <span>Send</span>
+                    <span>&#10148;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>&#128737; Built with AWS Bedrock</span>
+        <span>&#128202; Powered by Multi-Agent AI</span>
+        <span>&#128274; Guardrails Protected</span>
+        <span>&#128205; Qdrant Knowledge Base</span>
+    </div>
+
+    <script>
+        let queryCount = 0;
+        let messageCount = 0;
+        let conversationContext = [];
+
+        // Expanded Knowledge Bases
+        const PRODUCTS = {
+            toys: [
+                { name: "Nylon Bone Chew Toy", keywords: ["nylon", "bone", "extreme", "indestructible", "durable", "heavy duty"], desc: "Our most durable option for extreme chewers! Virtually indestructible nylon material that helps clean teeth. Available in S, M, L, XL sizes.", price: "$12.99", rating: "4.8/5", forChewers: "extreme" },
+                { name: "Rubber Chew Toys", keywords: ["rubber", "kong", "tough", "aggressive"], desc: "Great for aggressive chewers. Made from tough natural rubber with some give for satisfying chewing. Can be stuffed with treats!", price: "$9.99", rating: "4.6/5", forChewers: "aggressive" },
+                { name: "Rope Toys", keywords: ["rope", "tug", "interactive", "play", "teeth"], desc: "Perfect for tug-of-war and interactive play with your pet. The cotton fibers help clean teeth while chewing. Multiple sizes available.", price: "$7.99", rating: "4.7/5", forChewers: "moderate" },
+                { name: "Plush Toys", keywords: ["plush", "soft", "cuddly", "squeaky", "gentle"], desc: "Soft and cuddly toys with squeakers inside. Best for gentle chewers only - not recommended for dogs that destroy toys quickly.", price: "$8.99", rating: "4.5/5", forChewers: "gentle" },
+                { name: "Squeaky Ball Set", keywords: ["ball", "squeaky", "fetch", "tennis"], desc: "Set of 6 durable squeaky balls perfect for fetch. Made from non-toxic rubber, floats in water!", price: "$14.99", rating: "4.7/5", forChewers: "moderate" }
+            ],
+            leashes: [
+                { name: "Nylon Leash", keywords: ["nylon", "daily", "walk", "basic"], desc: "Perfect for daily city walks. Lightweight, durable nylon with comfortable padded handle. Available in 4ft and 6ft lengths.", price: "$14.99", rating: "4.8/5" },
+                { name: "Leather Leash", keywords: ["leather", "premium", "durable", "strong"], desc: "Premium quality leather for maximum durability and control. Softens with use, lasts for years. Great for larger dogs.", price: "$29.99", rating: "4.9/5" },
+                { name: "Reflective Harness", keywords: ["reflective", "night", "safety", "visible", "harness"], desc: "High-visibility reflective material for safe night walks. No-pull design reduces strain on your dog's neck.", price: "$24.99", rating: "4.7/5" },
+                { name: "Retractable Leash", keywords: ["retractable", "extend", "freedom", "roam"], desc: "Extends up to 16ft for controlled roaming. One-button brake and lock system. Best for well-trained dogs in open areas.", price: "$19.99", rating: "4.5/5" }
+            ],
+            food: [
+                { name: "Premium Adult Dog Food", keywords: ["food", "adult", "kibble", "nutrition"], desc: "Complete balanced nutrition for adult dogs. Available in Chicken, Beef, and Salmon flavors. No artificial preservatives.", price: "$44.99 (30lb bag)", rating: "4.8/5" },
+                { name: "Puppy Food", keywords: ["puppy", "young", "growing", "baby"], desc: "Higher protein formula designed for growing puppies. DHA for brain development, calcium for strong bones.", price: "$39.99 (20lb bag)", rating: "4.9/5" },
+                { name: "Training Treats", keywords: ["treat", "training", "reward", "snack"], desc: "Small, low-calorie bites perfect for training sessions. Soft texture, irresistible flavor. No wheat, corn, or soy.", price: "$8.99", rating: "4.7/5" }
+            ],
+            beds: [
+                { name: "Orthopedic Dog Bed", keywords: ["bed", "orthopedic", "memory foam", "senior", "joint", "arthritis"], desc: "Memory foam construction provides superior joint support. Ideal for senior dogs or those with arthritis. Machine washable cover. Sizes: S, M, L, XL.", price: "$49.99 - $89.99", rating: "4.8/5" },
+                { name: "Cozy Crate Pad", keywords: ["crate", "pad", "travel", "kennel"], desc: "Plush padding for crates and kennels. Water-resistant bottom, machine washable. Makes crate training more comfortable.", price: "$24.99", rating: "4.6/5" }
+            ],
+            training: [
+                { name: "Puppy Training Pads (50-pack)", keywords: ["training", "pad", "potty", "house", "pee", "puppy"], desc: "Super absorbent 5-layer pads with leak-proof backing. Quick-dry surface attracts puppies for effective house training.", price: "$21.99", rating: "4.7/5" },
+                { name: "Clicker Training Kit", keywords: ["clicker", "training", "behavior"], desc: "Professional clicker with wrist strap plus training guide. Consistent sound for positive reinforcement training.", price: "$6.99", rating: "4.8/5" }
+            ],
+            cat: [
+                { name: "Cat Scratching Post", keywords: ["cat", "scratch", "post", "sisal"], desc: "Tall sisal-wrapped post satisfies natural scratching instincts. Saves your furniture! Stable wide base.", price: "$34.99", rating: "4.7/5" },
+                { name: "Interactive Cat Toy", keywords: ["cat", "laser", "feather", "interactive"], desc: "Automatic laser toy keeps cats entertained. Random patterns stimulate hunting instincts. Auto shut-off timer.", price: "$19.99", rating: "4.6/5" },
+                { name: "Clumping Cat Litter", keywords: ["cat", "litter", "clumping", "odor"], desc: "Superior clumping formula for easy cleaning. 99% dust-free, controls odors for up to 14 days.", price: "$18.99 (20lb)", rating: "4.8/5" }
+            ]
+        };
+
+        const ORDERS = {
+            "AWSPET-20018": { status: "OUT_FOR_DELIVERY", statusIcon: "&#128666;", item: "Puppy Training Pads (50-pack)", carrier: "UPS Ground", tracking: "1ZSF200180018", eta: "Today by 8pm", city: "San Francisco, CA", total: "$21.99", orderDate: "Feb 10, 2026" },
+            "AWSPET-20001": { status: "DELIVERED", statusIcon: "&#9989;", item: "Nylon Bone Chew Toy", carrier: "FedEx", tracking: "FX12345678", eta: "Delivered Jan 10", city: "Los Angeles, CA", total: "$12.99", orderDate: "Jan 8, 2026" },
+            "AWSPET-20025": { status: "PROCESSING", statusIcon: "&#128230;", item: "Orthopedic Dog Bed (Large)", carrier: "Pending Assignment", tracking: "Pending", eta: "Feb 18-20, 2026", city: "Seattle, WA", total: "$69.99", orderDate: "Feb 13, 2026" },
+            "AWSPET-20030": { status: "SHIPPED", statusIcon: "&#128230;", item: "Premium Adult Dog Food (Chicken)", carrier: "USPS Priority", tracking: "9400111899223847563", eta: "Feb 15-16, 2026", city: "Denver, CO", total: "$44.99", orderDate: "Feb 11, 2026" },
+            "AWSPET-20042": { status: "DELAYED", statusIcon: "&#9888;", item: "Leather Leash + Collar Set", carrier: "UPS", tracking: "1Z999AA10123456784", eta: "Feb 17, 2026 (was Feb 14)", city: "Chicago, IL", total: "$54.99", orderDate: "Feb 9, 2026", delayReason: "Weather delays in midwest region" }
+        };
+
+        // Semantic intent patterns
+        const INTENTS = {
+            orderTracking: {
+                patterns: ["where", "track", "order", "package", "delivery", "shipped", "status", "awspet", "when will", "arriving", "eta", "locate", "find my"],
+                synonyms: { "package": "order", "parcel": "order", "shipment": "order", "stuff": "order" }
+            },
+            returns: {
+                patterns: ["return", "refund", "exchange", "send back", "money back", "don't want", "wrong item", "damaged", "broken", "defective", "policy", "eligible", "can i return"],
+                synonyms: { "give back": "return", "get refund": "refund", "swap": "exchange" }
+            },
+            products: {
+                patterns: ["recommend", "suggest", "best", "good for", "what toy", "which", "looking for", "need", "buy", "product", "sell", "have", "stock"],
+                synonyms: { "got": "have", "carry": "have", "offer": "have" }
+            },
+            shipping: {
+                patterns: ["shipping", "delivery time", "how long", "when arrive", "ship to", "delivery area", "shipping cost", "free shipping"],
+                synonyms: { "deliver": "shipping", "send": "shipping" }
+            },
+            chewers: {
+                patterns: ["chew", "destroy", "aggressive", "heavy", "tough", "durable", "indestructible", "strong", "powerful", "rip", "tear"],
+                synonyms: { "wreck": "destroy", "demolish": "destroy", "chewer": "chew" }
+            },
+            greeting: {
+                patterns: ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "help", "start"],
+                synonyms: {}
+            },
+            thanks: {
+                patterns: ["thank", "thanks", "appreciate", "helpful", "great", "awesome", "perfect"],
+                synonyms: { "thx": "thanks", "ty": "thanks" }
+            },
+            pricing: {
+                patterns: ["price", "cost", "how much", "expensive", "cheap", "affordable", "budget"],
+                synonyms: { "$$": "price", "dollars": "price" }
+            }
+        };
+
+        function getTime() {
+            return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function addMessage(text, isUser, agentName) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user' : 'bot'}`;
+
+            let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+            if (!isUser && agentName) {
+                div.innerHTML = `<div class="agent-tag">${agentName}</div>${content}<div class="message-time">${getTime()}</div>`;
+            } else {
+                div.innerHTML = `${content}<div class="message-time">${getTime()}</div>`;
+            }
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+
+            messageCount++;
+            if (messageCount > 4 && messageCount % 5 === 0) {
+                setTimeout(() => document.getElementById('rating').classList.add('show'), 1000);
+            }
+        }
+
+        function setActiveAgent(agent) {
+            document.querySelectorAll('.agent-badge').forEach(b => b.classList.remove('active'));
+            const map = { 'Manager': 'badge-manager', 'Order Tracking': 'badge-orders', 'Returns': 'badge-returns', 'Product Info': 'badge-products' };
+            document.getElementById(map[agent] || 'badge-manager').classList.add('active');
+        }
+
+        function extractOrderId(msg) {
+            const match = msg.toUpperCase().match(/AWSPET-\d{5}/);
+            return match ? match[0] : null;
+        }
+
+        // Semantic analysis function
+        function analyzeIntent(msg) {
+            const lower = msg.toLowerCase();
+            const scores = {};
+
+            for (const [intent, config] of Object.entries(INTENTS)) {
+                let score = 0;
+                for (const pattern of config.patterns) {
+                    if (lower.includes(pattern)) {
+                        score += 2;
+                    }
+                }
+                // Check for word boundaries for better matching
+                const words = lower.split(/\s+/);
+                for (const word of words) {
+                    for (const pattern of config.patterns) {
+                        if (word === pattern || word.startsWith(pattern)) {
+                            score += 1;
+                        }
+                    }
+                }
+                scores[intent] = score;
+            }
+
+            // Find highest scoring intent
+            let maxIntent = 'greeting';
+            let maxScore = 0;
+            for (const [intent, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    maxIntent = intent;
+                }
+            }
+
+            return { intent: maxIntent, score: maxScore, allScores: scores };
+        }
+
+        // Find relevant products based on query
+        function findProducts(msg) {
+            const lower = msg.toLowerCase();
+            const results = [];
+
+            for (const [category, items] of Object.entries(PRODUCTS)) {
+                for (const product of items) {
+                    let relevance = 0;
+                    for (const keyword of product.keywords) {
+                        if (lower.includes(keyword)) {
+                            relevance += 2;
+                        }
+                    }
+                    if (lower.includes(product.name.toLowerCase())) {
+                        relevance += 5;
+                    }
+                    if (relevance > 0) {
+                        results.push({ ...product, category, relevance });
+                    }
+                }
+            }
+
+            return results.sort((a, b) => b.relevance - a.relevance);
+        }
+
+        function processMessage(msg) {
+            const lower = msg.toLowerCase();
+            queryCount++;
+            document.getElementById('stat-queries').textContent = queryCount;
+
+            // Store context
+            conversationContext.push({ role: 'user', message: msg, time: new Date() });
+
+            const { intent, score, allScores } = analyzeIntent(msg);
+            const orderId = extractOrderId(msg);
+
+            // Handle order tracking with or without order ID
+            if (intent === 'orderTracking' || orderId) {
+                setActiveAgent('Order Tracking');
+
+                if (orderId && ORDERS[orderId]) {
+                    const o = ORDERS[orderId];
+                    let statusMessage = '';
+
+                    if (o.status === 'DELIVERED') {
+                        statusMessage = `Great news! Your order was successfully delivered on ${o.eta}. If you haven't received it, please check with neighbors or your building's package area.`;
+                    } else if (o.status === 'OUT_FOR_DELIVERY') {
+                        statusMessage = `Exciting! Your package is out for delivery and should arrive ${o.eta}. Keep an eye out for the delivery driver!`;
+                    } else if (o.status === 'DELAYED') {
+                        statusMessage = `We apologize - your order has been delayed. **Reason:** ${o.delayReason}. New estimated delivery: ${o.eta}. We're monitoring this closely.`;
+                    } else if (o.status === 'PROCESSING') {
+                        statusMessage = `Your order is being prepared for shipment. Once it ships, you'll receive tracking information via email.`;
+                    } else {
+                        statusMessage = `Your package is on its way! Expected delivery: ${o.eta}.`;
+                    }
+
+                    return {
+                        agent: 'Order Tracking Agent',
+                        response: `${o.statusIcon} **Order ${orderId} - ${o.status.replace(/_/g, ' ')}**\n\n` +
+                            `**Item:** ${o.item}\n` +
+                            `**Order Date:** ${o.orderDate}\n` +
+                            `**Total:** ${o.total}\n` +
+                            `**Carrier:** ${o.carrier}\n` +
+                            `**Tracking #:** ${o.tracking}\n` +
+                            `**Destination:** ${o.city}\n\n` +
+                            `${statusMessage}\n\n` +
+                            `Is there anything else I can help you with regarding this order?`
+                    };
+                }
+
+                // No order ID provided
+                return {
+                    agent: 'Order Tracking Agent',
+                    response: "&#128269; I'd be happy to help track your order!\n\n" +
+                        "**Please provide your order ID** (format: AWSPET-XXXXX)\n\n" +
+                        "You can find it in:\n" +
+                        "- Your order confirmation email\n" +
+                        "- Your account order history\n\n" +
+                        "**Sample orders you can try:**\n" +
+                        "- AWSPET-20018 (Out for Delivery)\n" +
+                        "- AWSPET-20025 (Processing)\n" +
+                        "- AWSPET-20042 (Delayed)"
+                };
+            }
+
+            // Handle shipping questions
+            if (intent === 'shipping') {
+                setActiveAgent('Order Tracking');
+
+                // Check for specific location mentions
+                const locationMatch = lower.match(/to\s+([\w\s]+?)(?:\?|$|,)/i);
+                let locationInfo = '';
+
+                if (lower.includes('new york') || lower.includes('east coast') || lower.includes('ny') || lower.includes('boston') || lower.includes('florida')) {
+                    locationInfo = "\n\n**For East Coast (NY, FL, etc.):** 4-6 business days via standard shipping, or 2-3 days with expedited.";
+                } else if (lower.includes('california') || lower.includes('west coast') || lower.includes('la') || lower.includes('seattle')) {
+                    locationInfo = "\n\n**For West Coast (CA, WA, etc.):** 2-4 business days - our warehouse is nearby!";
+                } else if (lower.includes('texas') || lower.includes('chicago') || lower.includes('midwest') || lower.includes('denver')) {
+                    locationInfo = "\n\n**For Central US (TX, IL, CO, etc.):** 3-5 business days standard shipping.";
+                }
+
+                return {
+                    agent: 'Order Tracking Agent',
+                    response: "&#128666; **Shipping Information**\n\n" +
+                        "**Standard Shipping Times:**\n" +
+                        "- **West Coast:** 2-4 business days\n" +
+                        "- **Central US:** 3-5 business days\n" +
+                        "- **East Coast:** 4-6 business days\n\n" +
+                        "**Shipping Options:**\n" +
+                        "- Standard Ground: FREE on orders $35+\n" +
+                        "- Expedited (2-3 days): $9.99\n" +
+                        "- Express (1-2 days): $14.99\n\n" +
+                        "**Carriers:** UPS, FedEx, USPS\n" +
+                        "**Processing Time:** 24-48 hours" +
+                        locationInfo +
+                        "\n\nWould you like to track an existing order?"
+                };
+            }
+
+            // Handle returns with context awareness
+            if (intent === 'returns') {
+                setActiveAgent('Returns');
+
+                let specificAdvice = '';
+
+                // Check for specific items mentioned
+                if (lower.includes('food') || lower.includes('treat')) {
+                    specificAdvice = "\n\n&#9888; **Important:** Opened food and treats are NOT eligible for return due to safety regulations. Unopened items can be returned within 7 days.";
+                } else if (lower.includes('leash') || lower.includes('collar') || lower.includes('harness')) {
+                    specificAdvice = "\n\n&#9989; **Good news:** Leashes, collars, and harnesses are eligible for return within 7 days if unused and in original packaging!";
+                } else if (lower.includes('bed') || lower.includes('crate')) {
+                    specificAdvice = "\n\n&#128716; **Beds & Crates:** Returnable within 7 days if free from pet hair, stains, and odors. Return shipping may apply for large items.";
+                } else if (lower.includes('toy')) {
+                    specificAdvice = "\n\n&#127918; **Toys:** Returnable within 7 days if unused. Toys with visible chewing, saliva, or damage are not eligible.";
+                } else if (lower.includes('damaged') || lower.includes('broken') || lower.includes('defective')) {
+                    specificAdvice = "\n\n&#9888; **Damaged Items:** We're so sorry! Damaged or defective items are ALWAYS eligible for free return/replacement. Just provide your order number and we'll make it right!";
+                }
+
+                // Check for time-related questions
+                if (lower.includes('day') || lower.includes('week') || lower.includes('ago') || lower.includes('bought') || lower.includes('purchased')) {
+                    const dayMatch = lower.match(/(\d+)\s*days?\s*ago/i);
+                    if (dayMatch && parseInt(dayMatch[1]) <= 7) {
+                        specificAdvice += "\n\n&#9989; Based on your timeframe, you should still be within our 7-day return window!";
+                    } else if (dayMatch && parseInt(dayMatch[1]) > 7) {
+                        specificAdvice += "\n\n&#9888; Unfortunately, this may be outside our 7-day return window. However, if the item is defective, we can still help!";
+                    }
+                }
+
+                return {
+                    agent: 'Returns Agent',
+                    response: "&#128259; **Returns & Refunds Policy**\n\n" +
+                        "**Return Window:** 7 calendar days from delivery\n\n" +
+                        "**Eligible Items:**\n" +
+                        "- Accessories, toys, apparel, bowls, grooming tools\n" +
+                        "- Must be unused and in original packaging\n\n" +
+                        "**NOT Eligible:**\n" +
+                        "- Opened food or treats\n" +
+                        "- Items with pet hair, odor, or damage\n\n" +
+                        "**Refund Timeline:** 5-7 business days after we receive and inspect the item\n\n" +
+                        "**Free Return Shipping:** For damaged, defective, or incorrect items" +
+                        specificAdvice +
+                        "\n\nWould you like to start a return? Just provide your order number!"
+                };
+            }
+
+            // Handle product queries with semantic understanding
+            if (intent === 'products' || intent === 'chewers' || intent === 'pricing') {
+                setActiveAgent('Product Info');
+
+                const relevantProducts = findProducts(msg);
+
+                // Check for chewer type questions
+                if (intent === 'chewers' || lower.includes('destroy') || lower.includes('aggressive') || lower.includes('heavy chewer') || lower.includes('powerful')) {
+                    return {
+                        agent: 'Product Info Agent',
+                        response: "&#128170; **Toys for Powerful Chewers**\n\n" +
+                            "I totally understand - some dogs can destroy toys in minutes! Here are my top recommendations:\n\n" +
+                            "**Best Choice - Extreme Chewers:**\n" +
+                            "&#11088; **Nylon Bone Chew Toy** - $12.99\n" +
+                            "Virtually indestructible, helps clean teeth, multiple sizes\n\n" +
+                            "**Great Alternative - Aggressive Chewers:**\n" +
+                            "&#11088; **Rubber Chew Toys** - $9.99\n" +
+                            "Tough rubber, can be stuffed with treats for extra engagement\n\n" +
+                            "**&#9888; Avoid:** Plush toys and rope toys for heavy chewers - they'll be destroyed quickly!\n\n" +
+                            "**Pro Tip:** Rotate toys weekly to keep your dog interested, and always supervise with new toys.\n\n" +
+                            "What size is your dog? I can help you pick the right size!"
+                    };
+                }
+
+                // If specific products found
+                if (relevantProducts.length > 0) {
+                    const top3 = relevantProducts.slice(0, 3);
+                    let response = `&#127919; **Found ${relevantProducts.length} matching product${relevantProducts.length > 1 ? 's' : ''}:**\n\n`;
+
+                    for (const product of top3) {
+                        response += `**${product.name}** - ${product.price}\n`;
+                        response += `${product.desc}\n`;
+                        response += `&#11088; Rating: ${product.rating}\n\n`;
+                    }
+
+                    if (relevantProducts.length > 3) {
+                        response += `_Plus ${relevantProducts.length - 3} more options available!_\n\n`;
+                    }
+
+                    response += "Would you like more details on any of these, or should I help you find something else?";
+
+                    return { agent: 'Product Info Agent', response };
+                }
+
+                // General product browsing
+                return {
+                    agent: 'Product Info Agent',
+                    response: "&#128054; **Our Product Categories**\n\n" +
+                        "**&#127918; Toys:**\n" +
+                        "- Nylon Bones (extreme chewers) - $12.99\n" +
+                        "- Rubber Toys (aggressive chewers) - $9.99\n" +
+                        "- Rope Toys (interactive play) - $7.99\n" +
+                        "- Plush Toys (gentle chewers) - $8.99\n\n" +
+                        "**&#128054; Walking & Training:**\n" +
+                        "- Leashes (nylon, leather, retractable) - from $14.99\n" +
+                        "- Training Pads (50-pack) - $21.99\n" +
+                        "- Clicker Training Kit - $6.99\n\n" +
+                        "**&#128716; Comfort & Care:**\n" +
+                        "- Orthopedic Beds - from $49.99\n" +
+                        "- Premium Dog Food - $44.99\n\n" +
+                        "**&#128049; Cat Products:**\n" +
+                        "- Scratching Posts, Interactive Toys, Litter\n\n" +
+                        "What type of pet do you have, and what are you looking for?"
+                };
+            }
+
+            // Handle thanks
+            if (intent === 'thanks') {
+                setActiveAgent('Manager');
+                return {
+                    agent: 'Manager Agent',
+                    response: "&#128522; You're very welcome! I'm glad I could help!\n\n" +
+                        "Is there anything else you'd like to know about:\n" +
+                        "- Your orders\n" +
+                        "- Our products\n" +
+                        "- Returns or shipping\n\n" +
+                        "I'm here whenever you need me!"
+                };
+            }
+
+            // Default greeting / general help
+            setActiveAgent('Manager');
+            return {
+                agent: 'Manager Agent',
+                response: "&#128075; Hello! Welcome to AWS Pet Store Support!\n\n" +
+                    "I'm your AI assistant with a team of specialized agents ready to help:\n\n" +
+                    "&#128666; **Order Tracking** - Track packages, check delivery status\n" +
+                    "&#128259; **Returns & Refunds** - Return policy, start a return\n" +
+                    "&#128054; **Product Expert** - Find the perfect items for your pet\n" +
+                    "&#128230; **Shipping Info** - Delivery times, shipping costs\n\n" +
+                    "Just type your question naturally, like:\n" +
+                    "_\"Where's my order AWSPET-20018?\"_\n" +
+                    "_\"My dog destroys every toy, what do you recommend?\"_\n" +
+                    "_\"Can I return something I bought last week?\"_\n\n" +
+                    "How can I help you today?"
+            };
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            addMessage(msg, true);
+            input.value = '';
+
+            document.getElementById('typing').classList.add('show');
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('rating').classList.remove('show');
+
+            const startTime = Date.now();
+            await new Promise(r => setTimeout(r, 800 + Math.random() * 700));
+            const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
+            document.getElementById('stat-response').textContent = responseTime + 's';
+
+            const result = processMessage(msg);
+            addMessage(result.response, false, result.agent);
+
+            document.getElementById('typing').classList.remove('show');
+            document.getElementById('sendBtn').disabled = false;
+            input.focus();
+        }
+
+        function sendQuick(msg) {
+            document.getElementById('userInput').value = msg;
+            sendMessage();
+        }
+
+        function addEmoji() {
+            const emojis = ['&#128054;', '&#128049;', '&#10084;', '&#128077;', '&#128522;', '&#127918;', '&#128062;'];
+            const input = document.getElementById('userInput');
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const temp = document.createElement('div');
+            temp.innerHTML = randomEmoji;
+            input.value += temp.textContent;
+            input.focus();
+        }
+
+        function submitRating(stars) {
+            document.getElementById('rating').innerHTML = `<p>&#11088; Thank you for your ${stars}-star rating! We appreciate your feedback!</p>`;
+            setTimeout(() => document.getElementById('rating').classList.remove('show'), 2500);
+        }
+
+        // Agent badge click handlers
+        function activateAgent(agent) {
+            const agentMessages = {
+                manager: "&#128075; **Manager Agent activated!**\n\nI can help route you to the right specialist or answer general questions. What do you need help with today?",
+                orders: "&#128666; **Order Tracking Agent ready!**\n\nI specialize in tracking orders and delivery status. Please provide your order ID (AWSPET-XXXXX) or ask about shipping times!",
+                returns: "&#128259; **Returns Agent at your service!**\n\nI handle returns, refunds, and exchanges. Tell me about the item you'd like to return, or ask about our return policy!",
+                products: "&#128054; **Product Expert here!**\n\nI know everything about our pet products! Tell me about your pet (type, size, chewing habits) and I'll find the perfect items!"
+            };
+
+            const agentMap = { manager: 'Manager', orders: 'Order Tracking', returns: 'Returns', products: 'Product Info' };
+            setActiveAgent(agentMap[agent]);
+
+            document.getElementById('typing').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('typing').classList.remove('show');
+                addMessage(agentMessages[agent], false, agentMap[agent] + ' Agent');
+            }, 500);
+        }
+
+        // Stats card click handlers
+        function showStats(type) {
+            const statsInfo = {
+                queries: "&#128202; **Session Statistics**\n\nQueries handled this session: " + queryCount + "\nOur agents are trained on thousands of customer interactions to provide accurate, helpful responses.",
+                response: "&#9889; **Response Time**\n\nOur multi-agent system typically responds in under 2 seconds. Complex queries may take slightly longer as we consult our knowledge bases.",
+                uptime: "&#128994; **System Status**\n\nAll systems operational!\n- AWS Bedrock: Online\n- Knowledge Base: Connected\n- Guardrails: Active\n\nUptime this month: 99.9%",
+                agents: "&#129302; **Active Agents**\n\n4 specialized agents ready to help:\n1. Manager Agent - Query routing\n2. Order Tracking - Shipments & delivery\n3. Returns Agent - Refunds & exchanges\n4. Product Expert - Recommendations"
+            };
+
+            document.getElementById('typing').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('typing').classList.remove('show');
+                addMessage(statsInfo[type], false, 'System');
+            }, 300);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="awsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9900;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF6600;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#232F3E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a242f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f5f7fa"/>
+  
+  <!-- Title -->
+  <text x="600" y="45" text-anchor="middle" font-size="28" font-weight="bold" fill="#232F3E">AWS Pet Store Multi-Agent Architecture</text>
+  
+  <!-- User -->
+  <rect x="50" y="300" width="120" height="80" rx="10" fill="#4CAF50"/>
+  <text x="110" y="345" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Customer</text>
+  <text x="110" y="365" text-anchor="middle" font-size="11" fill="white">Web Browser</text>
+  
+  <!-- CloudFront -->
+  <rect x="220" y="300" width="140" height="80" rx="10" fill="url(#awsGrad)"/>
+  <text x="290" y="335" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Amazon</text>
+  <text x="290" y="352" text-anchor="middle" font-size="12" fill="white" font-weight="bold">CloudFront</text>
+  <text x="290" y="370" text-anchor="middle" font-size="10" fill="white">CDN</text>
+  
+  <!-- S3 -->
+  <rect x="220" y="420" width="140" height="60" rx="10" fill="url(#awsGrad)"/>
+  <text x="290" y="450" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Amazon S3</text>
+  <text x="290" y="468" text-anchor="middle" font-size="10" fill="white">Static Hosting</text>
+  
+  <!-- Manager Agent Box -->
+  <rect x="410" y="140" width="380" height="520" rx="15" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
+  <text x="600" y="170" text-anchor="middle" font-size="16" font-weight="bold" fill="#1976D2">Lyzr Multi-Agent System</text>
+  
+  <!-- Manager Agent -->
+  <rect x="480" y="195" width="240" height="70" rx="10" fill="#9C27B0"/>
+  <text x="600" y="225" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Manager Agent</text>
+  <text x="600" y="245" text-anchor="middle" font-size="10" fill="white">Query Router & Coordinator</text>
+  
+  <!-- Sub-agents -->
+  <rect x="430" y="290" width="150" height="80" rx="8" fill="#2196F3"/>
+  <text x="505" y="320" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Order Tracking</text>
+  <text x="505" y="337" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Agent</text>
+  <text x="505" y="358" text-anchor="middle" font-size="9" fill="white">track_order tool</text>
+  
+  <rect x="620" y="290" width="150" height="80" rx="8" fill="#F44336"/>
+  <text x="695" y="320" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Returns</text>
+  <text x="695" y="337" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Agent</text>
+  <text x="695" y="358" text-anchor="middle" font-size="9" fill="white">process_return tool</text>
+  
+  <rect x="525" y="395" width="150" height="80" rx="8" fill="#4CAF50"/>
+  <text x="600" y="425" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Product Info</text>
+  <text x="600" y="442" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Agent</text>
+  <text x="600" y="463" text-anchor="middle" font-size="9" fill="white">search_products tool</text>
+  
+  <!-- Knowledge Bases -->
+  <rect x="430" y="500" width="340" height="60" rx="8" fill="#FF9800"/>
+  <text x="600" y="525" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Qdrant Vector Knowledge Base</text>
+  <text x="600" y="545" text-anchor="middle" font-size="10" fill="white">Products | Shipping | Returns Policies</text>
+  
+  <!-- AWS Services -->
+  <rect x="840" y="200" width="150" height="70" rx="10" fill="url(#awsGrad)"/>
+  <text x="915" y="230" text-anchor="middle" font-size="12" fill="white" font-weight="bold">AWS Bedrock</text>
+  <text x="915" y="250" text-anchor="middle" font-size="10" fill="white">Claude 3.5 Sonnet</text>
+  
+  <rect x="840" y="290" width="150" height="70" rx="10" fill="url(#awsGrad)"/>
+  <text x="915" y="320" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Bedrock</text>
+  <text x="915" y="340" text-anchor="middle" font-size="10" fill="white">Guardrails</text>
+  
+  <rect x="840" y="380" width="150" height="70" rx="10" fill="url(#awsGrad)"/>
+  <text x="915" y="410" text-anchor="middle" font-size="12" fill="white" font-weight="bold">AWS Lambda</text>
+  <text x="915" y="430" text-anchor="middle" font-size="10" fill="white">Orders & Returns</text>
+  
+  <rect x="840" y="470" width="150" height="70" rx="10" fill="url(#awsGrad)"/>
+  <text x="915" y="500" text-anchor="middle" font-size="12" fill="white" font-weight="bold">API Gateway</text>
+  <text x="915" y="520" text-anchor="middle" font-size="10" fill="white">REST API</text>
+  
+  <!-- Arrows -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <line x1="170" y1="340" x2="215" y2="340" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="360" y1="340" x2="405" y2="340" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="290" y1="385" x2="290" y2="415" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="790" y1="235" x2="835" y2="235" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="790" y1="325" x2="835" y2="325" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="790" y1="415" x2="835" y2="415" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Coder Integration -->
+  <rect x="840" y="580" width="150" height="70" rx="10" fill="#1976D2"/>
+  <text x="915" y="610" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Coder</text>
+  <text x="915" y="630" text-anchor="middle" font-size="10" fill="white">Workspace Templates</text>
+  
+  <!-- MCP Servers -->
+  <rect x="50" y="580" width="300" height="90" rx="10" fill="#673AB7"/>
+  <text x="200" y="610" text-anchor="middle" font-size="12" fill="white" font-weight="bold">MCP Servers</text>
+  <text x="200" y="630" text-anchor="middle" font-size="10" fill="white">Pulumi | LaunchDarkly | Arize | LlamaIndex</text>
+  <text x="200" y="650" text-anchor="middle" font-size="9" fill="white">Infrastructure | Feature Flags | Observability | RAG</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="720" width="1100" height="60" rx="5" fill="#fff" stroke="#ddd"/>
+  <text x="70" y="745" font-size="11" fill="#333" font-weight="bold">Legend:</text>
+  <rect x="140" y="735" width="20" height="15" fill="url(#awsGrad)"/>
+  <text x="170" y="747" font-size="10" fill="#333">AWS Services</text>
+  <rect x="280" y="735" width="20" height="15" fill="#9C27B0"/>
+  <text x="310" y="747" font-size="10" fill="#333">Manager Agent</text>
+  <rect x="420" y="735" width="20" height="15" fill="#2196F3"/>
+  <text x="450" y="747" font-size="10" fill="#333">Sub-Agents</text>
+  <rect x="540" y="735" width="20" height="15" fill="#FF9800"/>
+  <text x="570" y="747" font-size="10" fill="#333">Knowledge Base</text>
+  <rect x="680" y="735" width="20" height="15" fill="#673AB7"/>
+  <text x="710" y="747" font-size="10" fill="#333">MCP Integration</text>
+</svg>
