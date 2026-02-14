@@ -26,11 +26,11 @@ This project implements an **enterprise-grade AI customer support system** for A
 
 ## Screenshots
 
-### Homepage
-![Homepage](screenshots/01-homepage.svg)
+### Homepage - Multi-Agent Chat Interface
+![Homepage](screenshots/01-homepage.png)
 
-### Chat Demo - Order Tracking
-![Chat Demo](screenshots/02-chat-demo.svg)
+### Chat Interface with Agent Panel
+![Chat Interface](screenshots/02-chat-interface.png)
 
 ---
 
@@ -210,12 +210,19 @@ Agent: [Product Info Agent] For aggressive chewers, I recommend:
 
 ```
 ├── README.md
+├── requirements.txt
+├── .gitignore
 ├── architecture/
-│   └── architecture.svg
+│   └── architecture.svg          # System architecture diagram
 ├── screenshots/
-│   └── [UI screenshots]
-└── src/
-    └── [Application source code]
+│   ├── 01-homepage.png           # Live website homepage
+│   └── 02-chat-interface.png     # Chat interface with agents
+├── src/
+│   ├── app.py                    # FastAPI backend application
+│   └── index.html                # Frontend chat interface
+└── coder-templates/
+    ├── petstore-pulumi-launchdarkly.tf   # Coder template with Pulumi + LD
+    └── petstore-arize-llamaindex.tf      # Coder template with Arize + LlamaIndex
 ```
 
 ---
