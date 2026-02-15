@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <!-- Background -->
+  <rect width="1000" height="700" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="500" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e293b">AWS Pet Store Multi-Agent Workflow</text>
+
+  <!-- Customer Section -->
+  <rect x="400" y="60" width="200" height="50" rx="25" fill="#3b82f6"/>
+  <text x="500" y="90" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Customer</text>
+
+  <!-- Arrow 1 -->
+  <path d="M500 110 L500 140" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- CloudFront -->
+  <rect x="350" y="145" width="300" height="45" rx="8" fill="#ff9900"/>
+  <text x="500" y="173" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Amazon CloudFront (Global CDN)</text>
+
+  <!-- Arrow 2 -->
+  <path d="M500 190 L500 220" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- S3 -->
+  <rect x="350" y="225" width="300" height="45" rx="8" fill="#569a31"/>
+  <text x="500" y="253" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Amazon S3 (Website Hosting)</text>
+
+  <!-- Arrow 3 -->
+  <path d="M500 270 L500 300" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Manager Agent Box -->
+  <rect x="300" y="305" width="400" height="60" rx="10" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2"/>
+  <text x="500" y="335" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Manager Agent</text>
+  <text x="500" y="352" text-anchor="middle" fill="#e9d5ff" font-size="10">"Analyzes question and routes to specialist"</text>
+
+  <!-- Three arrows to sub-agents -->
+  <path d="M380 365 L280 400" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M500 365 L500 400" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M620 365 L720 400" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Order Agent -->
+  <rect x="130" y="405" width="180" height="55" rx="8" fill="#2563eb"/>
+  <text x="220" y="428" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Order Tracking Agent</text>
+  <text x="220" y="448" text-anchor="middle" fill="#bfdbfe" font-size="9">Tracks shipments</text>
+
+  <!-- Returns Agent -->
+  <rect x="410" y="405" width="180" height="55" rx="8" fill="#dc2626"/>
+  <text x="500" y="428" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Returns Agent</text>
+  <text x="500" y="448" text-anchor="middle" fill="#fecaca" font-size="9">Handles refunds</text>
+
+  <!-- Product Agent -->
+  <rect x="690" y="405" width="180" height="55" rx="8" fill="#16a34a"/>
+  <text x="780" y="428" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Product Info Agent</text>
+  <text x="780" y="448" text-anchor="middle" fill="#bbf7d0" font-size="9">Recommends products</text>
+
+  <!-- Arrows to tools -->
+  <path d="M220 460 L220 490" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M500 460 L500 490" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M780 460 L780 490" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Lambda Orders -->
+  <rect x="140" y="495" width="160" height="45" rx="6" fill="#f97316"/>
+  <text x="220" y="522" text-anchor="middle" fill="white" font-size="10" font-weight="bold">AWS Lambda</text>
+  <text x="220" y="534" text-anchor="middle" fill="#fed7aa" font-size="8">(Orders Database)</text>
+
+  <!-- Lambda Returns -->
+  <rect x="420" y="495" width="160" height="45" rx="6" fill="#f97316"/>
+  <text x="500" y="522" text-anchor="middle" fill="white" font-size="10" font-weight="bold">AWS Lambda</text>
+  <text x="500" y="534" text-anchor="middle" fill="#fed7aa" font-size="8">(Returns Database)</text>
+
+  <!-- Qdrant -->
+  <rect x="700" y="495" width="160" height="45" rx="6" fill="#06b6d4"/>
+  <text x="780" y="522" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Qdrant</text>
+  <text x="780" y="534" text-anchor="middle" fill="#cffafe" font-size="8">(Knowledge Base)</text>
+
+  <!-- All connect to Bedrock -->
+  <path d="M220 540 L220 570 L500 570" stroke="#64748b" stroke-width="2"/>
+  <path d="M780 540 L780 570 L500 570" stroke="#64748b" stroke-width="2"/>
+  <path d="M500 540 L500 590" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Bedrock -->
+  <rect x="320" y="595" width="360" height="50" rx="8" fill="#232f3e" stroke="#ff9900" stroke-width="3"/>
+  <text x="500" y="620" text-anchor="middle" fill="#ff9900" font-size="13" font-weight="bold">AWS Bedrock (Claude AI) + Guardrails</text>
+  <text x="500" y="636" text-anchor="middle" fill="#94a3b8" font-size="9">Generates safe, intelligent responses</text>
+
+  <!-- Arrow back to customer -->
+  <path d="M500 645 L500 670 L950 670 L950 85 L700 85" stroke="#22c55e" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow-green)"/>
+  <text x="880" y="660" fill="#22c55e" font-size="10" font-weight="bold">Response</text>
+
+  <!-- Legend -->
+  <rect x="30" y="580" width="200" height="100" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="130" y="600" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">Legend</text>
+  <rect x="45" y="610" width="12" height="12" fill="#ff9900"/>
+  <text x="65" y="620" font-size="9" fill="#475569">AWS Services</text>
+  <rect x="45" y="628" width="12" height="12" fill="#8b5cf6"/>
+  <text x="65" y="638" font-size="9" fill="#475569">AI Agents</text>
+  <rect x="45" y="646" width="12" height="12" fill="#06b6d4"/>
+  <text x="65" y="656" font-size="9" fill="#475569">Vector Database</text>
+  <rect x="45" y="664" width="12" height="12" fill="#f97316"/>
+  <text x="65" y="674" font-size="9" fill="#475569">Serverless Functions</text>
+
+  <!-- Arrow marker definitions -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#22c55e"/>
+    </marker>
+  </defs>
+</svg>
